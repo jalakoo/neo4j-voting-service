@@ -21,37 +21,40 @@ questions = [
 ]
 
 # Check & Load existing answer state
-ANSWER_KEY = "answers"
+# ANSWER_KEY = "answers"
 def get_existing_answers() -> List[str]:
-    if ANSWER_KEY in st.session_state:
-        answers = st.session_state(ANSWER_KEY)
-    else:
+    if "answers" not in st.session_state:
         answers = []
-        st.session_state[ANSWER_KEY] = answers
+    else:
+        answers = st.session_state["answers"]
     return answers
 
 answers = get_existing_answers()
 
-# def most_recent_question(answers: List[Dict[str, str]]) -> str:
-#     """
-#     Load most recent question, that has not yet been answered
+def submit_answers(answers: List[str]) -> bool:
+    raise Exception('not yet implemented')
 
-#     Loads an exiting file if it exists, otherwise creates a new one.
-
-#     Parameters:
-#     filepath (str): Filepath to the file to be created or loaded.
-
-#     Returns:
-#     A file object.
-
-#     """
-    
-
-def submit_answer(question: str, answer: str):
+def select_answer(answer: str):
     answers.append(answer)
-    st.state[ANSWER_KEY] = answers
+    st.session_state["answers"] = answers
 
-def present_next_question(list_of_questions: List[Dict[str, str]], current_answers: List[str]) -> str:
+def answers_for(question: str) -> List[str]:
+    """
+    Get the answers for a question
+
+    Parameters:
+    question (str): The question to get answers for
+
+    Returns:
+    List[str]: The answers for the question
+
+    """
+    for block in questions:
+        if block['question'] == question:
+            return block['options']
+    raise Exception(f"Question not found in questions: {question}")
+
+def next_question(list_of_questions: List[Dict[str, str]], current_answers: List[str]) -> str:
     """
     Present the next question in the list
 
@@ -100,15 +103,28 @@ def present_next_question(list_of_questions: List[Dict[str, str]], current_answe
 def intro():
     st.header('Introductory Poll')
 
-def questions():
-    st.header('Questions')
+def present_question(question: str, options: List[str]):
+    st.header(question)
+    for option in options:
+        if st.button(option):
+            select_answer(option)
+            st.experimental_rerun()
+
+
+def present_end():
+    st.header('Thank you for your answers')
+    # TODO: Show results
 
 def main():
-    st.header('Welcome to the Neo4j for Python Developers Workshop')
+    # st.header('Welcome to the Neo4j for Python Developers Workshop')
+
+    next = next_question(questions, answers)
+    if next is None:
+        submit_answers(answers)
+        present_end()
+    else:
+        next_options = answers_for(next)
+        present_question(next, next_options)
     # st.text(f'Your random UUID is {uid} ')
-    # TODO: check if user has already answered questions
-    # TODO: if not, show intro
-    # TODO: If already answered, provide ability to edit
-    # Display one question at a time
 
 main()

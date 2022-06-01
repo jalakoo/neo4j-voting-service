@@ -15,7 +15,7 @@ test_questions = [
     },
 ]
 
-def test_present_next_question():
-    assert app.present_next_question(test_questions, ['A1']) == "B"
-    assert app.present_next_question(test_questions, ['A1', 'B1']) == "C"
-    assert app.present_next_question(test_questions, ['A1', 'B1', 'C1']) == None
+def test_next_question():
+    assert app.next_question(test_questions, ['A1']) == "B"
+    assert app.next_question(test_questions, ['A1', 'B1']) == "C"
+    assert app.next_question(test_questions, ['A1', 'B1', 'C1']) == None
