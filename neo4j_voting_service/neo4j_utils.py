@@ -20,24 +20,24 @@ class Neo4jConnection:
 
 
     # This does not work as expected
-    def read(self, query, **kwargs):
+    def read(self, database, query, **kwargs):
         assert self.__driver is not None, "Driver not initialized!"
         def execute(tx):
             result = tx.run(query, kwargs)
             return result
         try:
-            with self.__driver.session() as session:
+            with self.__driver.session(database=database) as session:
                 return session.write_transaction(execute)
         except Exception as e:
             print("read failed:", e)
 
-    def write(self, query, **kwargs):
+    def write(self, database, query, **kwargs):
         assert self.__driver is not None, "Driver not initialized!"
         def execute(tx):
             result = tx.run(query, kwargs)
             return result
         try:
-            with self.__driver.session() as session:
+            with self.__driver.session(database=database) as session:
                 return session.write_transaction(execute)
         except Exception as e:
             print("write failed:", e)

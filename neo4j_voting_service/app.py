@@ -1,23 +1,36 @@
 from operator import ge
+from neo4j_voting_service.neo4j_repo import Neo4jRepository
+from neo4j_voting_service.neo4j_utils import Neo4jConnection
 import streamlit as st
 # from neo4j_voting_service import Neo4jRepository
 from typing import List, Tuple, Dict
-# import uuid
+import uuid
+from pyvis import network as net
+from pyvis import options as opts
+from stvis import pv_static
+
 
 # Questions list in sequential order
+# questions = [
+#     {
+#         'question' : 'Where did you first hear of an Axo-lo-tle?',
+#         'options' : ['North America', 'South America', 'Europe', 'Africa', 'Asia', 'Australia and Pacific', "Can't Recall"]
+#     },
+#         {
+#         'question' : "What's an Axo-lo-ltle's most interesting trait?",
+#         'options' : ["Can survive the vacuum of space", 'Can regnerate body parts', 'Can generate an electric shock', "No Idea"]
+#     },
+#         {
+#         'question' : 'What brings you to GraphConnect?',
+#         'options' : ['Interest in Learning', 'To connect with other graph enthusasists', 'Was forced to']
+#     },
+# ]
+
 questions = [
     {
         'question' : 'Where did you first hear of an Axo-lo-tle?',
         'options' : ['North America', 'South America', 'Europe', 'Africa', 'Asia', 'Australia and Pacific', "Can't Recall"]
-    },
-        {
-        'question' : "What's an Axo-lo-ltle's most interesting trait?",
-        'options' : ["Can survive the vacuum of space", 'Can regnerate body parts', 'Can generate an electric shock', "No Idea"]
-    },
-        {
-        'question' : 'What brings you to GraphConnect?',
-        'options' : ['Interest in Learning', 'To connect with other graph enthusasists', 'Was forced to']
-    },
+    }
 ]
 
 # Check & Load existing answer state
@@ -31,8 +44,13 @@ def get_existing_answers() -> List[str]:
 
 answers = get_existing_answers()
 
-def submit_answers(answers: List[str]) -> bool:
-    raise Exception('not yet implemented')
+def submit_answers(uid: str, answers: List[str]) -> bool:
+    n4j = Neo4jRepository(st.secrets['neo4j_uri'], st.secrets['neo4j_user'], st.secrets['neo4j_password'])
+    success, message = n4j.submit_choices(uid, answers)
+    if success == False:
+        st.error(f"There was an error submitting your answers: {message}")
+        return
+    st.success(f"Your answers were submitted successfully")
 
 def select_answer(answer: str):
     answers.append(answer)
@@ -98,7 +116,15 @@ def next_question(list_of_questions: List[Dict[str, str]], current_answers: List
 #         st.session_state[key] = value
 #         return value
 
-# uid = update_only_blank_state('uuid', uuid.uuid1())
+def get_state(key):
+    if key in st.session_state:
+        return st.session_state[key]
+    return None
+
+uid = get_state('uuid')
+if uid == None:
+    uid = f'{uuid.uuid1()}'
+    st.session_state['uuid'] =  uid
 
 def intro():
     st.header('Introductory Poll')
@@ -114,13 +140,22 @@ def present_question(question: str, options: List[str]):
 def present_end():
     st.header('Thank you for your answers')
     # TODO: Show results
+    g=net.Network(height='500px', width='500px',heading='')
+    # g.set_edge_smooth('discrete')
+    # g.show_buttons(filter_=['physics'])
+    g.add_node(1)
+    g.add_node(2)
+    g.add_node(3)
+    g.add_edge(1,2)
+    g.add_edge(2,3) 
+    g.show_buttons(filter_=['physics'])
+    pv_static(g)
 
 def main():
     # st.header('Welcome to the Neo4j for Python Developers Workshop')
-
     next = next_question(questions, answers)
     if next is None:
-        submit_answers(answers)
+        submit_answers(uid, answers)
         present_end()
     else:
         next_options = answers_for(next)
