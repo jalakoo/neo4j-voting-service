@@ -1,5 +1,15 @@
 from typing import List, Tuple
 from neo4j_utils import Neo4jConnection
+import logging
+import sys
+
+# UNCOMMNET to get detailed debugging info
+# handler = logging.StreamHandler(sys.stdout)
+# handler.setLevel(logging.DEBUG)
+# logging.getLogger("neo4j").addHandler(handler)
+# logging.getLogger("neo4j").setLevel(logging.DEBUG)
+
+DATABASE_NAME = "neo4j" # default db name for all new Neo4j instances
 
 class Neo4jRepository():
     
@@ -41,14 +51,14 @@ class Neo4jRepository():
         MERGE (c)-[:OPTION_OF]->(q)
         MERGE (u)-[:CHOSE]->(c)
         """
-        _ = self.conn.write(database='votes', query=q, user_id=user_id, question=question, choice=choice)
+        _ = self.conn.write(database=DATABASE_NAME, query=q, user_id=user_id, question=question, choice=choice)
         return True
 
     def get_relationships(self):
         q = """
         MATCH (n)-[r]->(b) return n as source_node, b as target_node, type(r) as relationship
         """
-        result = self.conn.read(database='votes', query=q)
+        result = self.conn.read(database=DATABASE_NAME, query=q)
         # print(f'get_relationships: result: {result}')
 
         # Return a list of tuples of (source_node, target_node, relationship)
@@ -69,7 +79,7 @@ class Neo4jRepository():
         q = """
         MATCH (n) return n
         """
-        result = self.conn.read(database='votes', query=q)
+        result = self.conn.read(database=DATABASE_NAME, query=q)
         # print(f'get_data: result: {result}')
         cleaned_data = []
         for record in result:
