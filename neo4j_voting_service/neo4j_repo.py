@@ -44,28 +44,6 @@ class Neo4jRepository():
         _ = self.conn.write(database='votes', query=q, user_id=user_id, question=question, choice=choice)
         return True
 
-    # def get_all_user_choices(self):
-    #     q = """
-    #     MATCH (n:User)-[r]->(c:Choice) RETURN n.name as user, c.name as choice
-    #     """
-    #     result = self.conn.read(database='votes', query=q)
-    #     # print(f'get_data: result: {result}')
-    #     cleaned_data = []
-    #     for record in result:
-    #         cleaned_data.append(record)
-    #     return cleaned_data
-
-    # def get_all_question_choices(self):
-    #     q = """
-    #     MATCH (c:Choice)-[r]->(q:Question) RETURN c.name as choice, q.name as question
-    #     """
-    #     result = self.conn.read(database='votes', query=q)
-    #     # print(f'get_data: result: {result}')
-    #     cleaned_data = []
-    #     for record in result:
-    #         cleaned_data.append(record)
-    #     return cleaned_data
-
     def get_relationships(self):
         q = """
         MATCH (n)-[r]->(b) return n as source_node, b as target_node, type(r) as relationship
@@ -79,7 +57,7 @@ class Neo4jRepository():
             # Use dict values(key) to retrieve record info
             # EXAMPLE RECORD:
             # <Record source_node=<Node id=0 labels=frozenset({'Choice'}) properties={'name': "Can't Recall"}> target_node=<Node id=31 labels=frozenset({'Question'}) properties={'name': 'Where did you first hear of an Axo-lo-tle?'}> relationships='OPTION_OF'>
-            print(f'get_relationships: record: {record.value("source_node")}')
+            # print(f'get_relationships: record: {record.value("source_node")}')
             # Use dot notation to retrieve node properties
             source_node_id = record.value("source_node").id
             target_node_id = record.value("target_node").id
