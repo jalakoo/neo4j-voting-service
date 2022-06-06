@@ -90,7 +90,7 @@ def answers_for(question: str) -> List[str]:
             return block['options']
     raise Exception(f"Question not found in questions: {question}")
 
-def next_question(list_of_questions: List[dict[str, str | List[str]]], current_answers: dict[str:str]) -> str:
+def next_question(list_of_questions: List[dict[str, str]], current_answers: dict[str:str]) -> str:
     """
     Present the next question in the list
 
