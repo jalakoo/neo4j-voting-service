@@ -13,27 +13,27 @@ from stvis import pv_static
 
 
 # Questions list in sequential order
-questions = [
-    {
-        'question' : 'Where did you first hear of an Axo-lo-tle?',
-        'options' : ['North America', 'South America', 'Europe', 'Africa', 'Asia', 'Australia and Pacific', "Can't Recall"]
-    },
-        {
-        'question' : "What's an Axo-lo-ltle's most interesting trait?",
-        'options' : ["Can survive the vacuum of space", 'Can regnerate body parts', 'Can generate an electric shock', "No Idea"]
-    },
-        {
-        'question' : 'What brings you to GraphConnect?',
-        'options' : ['Interest in Learning', 'To connect with other graph enthusasists', 'Was forced to']
-    },
-]
-
 # questions = [
 #     {
 #         'question' : 'Where did you first hear of an Axo-lo-tle?',
 #         'options' : ['North America', 'South America', 'Europe', 'Africa', 'Asia', 'Australia and Pacific', "Can't Recall"]
-#     }
+#     },
+#         {
+#         'question' : "What's an Axo-lo-ltle's most interesting trait?",
+#         'options' : ["Can survive the vacuum of space", 'Can regnerate body parts', 'Can generate an electric shock', "No Idea"]
+#     },
+#         {
+#         'question' : 'What brings you to GraphConnect?',
+#         'options' : ['Interest in Learning', 'To connect with other graph enthusasists', 'Was forced to']
+#     },
 # ]
+
+questions = [
+    {
+        'question' : 'Where did you first hear of an Axo-lo-tle?',
+        'options' : ['North America', 'South America', 'Europe', 'Africa', 'Asia', 'Australia and Pacific', "Can't Recall"]
+    }
+]
 
 # Check & Load existing answer state
 # ANSWER_KEY = "answers"
@@ -48,15 +48,16 @@ def get_existing_answers()->dict[str:str]:
         dict: A dict[str:str] containing [question:selected_answer].
     """
     if "answers" not in st.session_state:
-        answers = {"":""}
+        answers = {}
     else:
         answers = st.session_state["answers"]
     return answers
 
 answers = get_existing_answers()
+n4j = Neo4jRepository(st.secrets['neo4j_uri'], st.secrets['neo4j_user'], st.secrets['neo4j_password'])
 
 def submit_answers(uid: str, answers: dict[str:str]) -> bool:
-    n4j = Neo4jRepository(st.secrets['neo4j_uri'], st.secrets['neo4j_user'], st.secrets['neo4j_password'])
+    # n4j = Neo4jRepository(st.secrets['neo4j_uri'], st.secrets['neo4j_user'], st.secrets['neo4j_password'])
     success, message = n4j.submit_choices(uid, answers)
     if success == False:
         st.error(f"There was an error submitting your answers: {message}")
@@ -124,24 +125,55 @@ def present_question(question: str, options: List[str]):
             select_answer(question, option)
             st.experimental_rerun()
 
+def display_graph(network: net.Network, neo4j: Neo4jConnection):
+    data = neo4j.get_data()
+    print(f'display_graph: {data}')
+    network.clear()
+    for element in data:
+        # Edge or node?
+        network.add_node(element['name'])
 
 def present_end():
-    st.header('Thank you for your answers')
+    st.header('Thanks for answering!')
+    description = f"Here's how the poll answers look like as a graph.  Your randomly generated user id is <b style='font-family:sans-serif; color:Green; font-size: 24px;'>  {uid}</b>"
+    st.markdown(description, unsafe_allow_html=True)
     # TODO: Show results
-    g=net.Network(height='500px', width='500px',heading='')
-    # g.set_edge_smooth('discrete')
-    # g.show_buttons(filter_=['physics'])
-    g.add_node(1)
-    g.add_node(2)
-    g.add_node(3)
-    g.add_edge(1,2)
-    g.add_edge(2,3) 
-    g.show_buttons(filter_=['physics'])
-    pv_static(g)
-    st.text(f'Your randomly generated id is {uid}')
+    n=net.Network(height='500px', width='500px',heading='')
+    nodes = n4j.get_nodes()
+    # print(f'nodes: {len(nodes)}')
+    for _, record in enumerate(nodes):
+        # Edge or node?
+        label = list(record.labels)[0] # Should only have one label for the demonstrator
+        # print(f'display element: {record}')
+        idx = record.id
+        if label == "User":
+            if record['name'] == uid:
+                n.add_node(idx, label=record['name'], color='Green', labelHighlightBold=True)
+            else:
+                n.add_node(idx, label=record['name'], color = 'DarkSeaGreen')
+        elif label == "Question":
+            n.add_node(idx, label=record['name'], color = "IndianRed")
+        elif label == "Choice":
+            n.add_node(idx, label=record['name'], color = "CornflowerBlue")
+
+    edges = n4j.get_relationships()
+    # print(f'edges: {edges}')
+    for source_id, target_id, type in edges:
+        # print(f'edges: {source_id} {target_id} {type}')
+        n.add_edge(source_id, target_id, title=type)
+    n.show_buttons(filter_=['physics'])
+    pv_static(n)
+    more_info = f"""
+    To explore this data more, use the <a href="https://neo4j.com/developer/neo4j-desktop/">Desktop app</a> or the <a href="https://neo4j.com/developer/neo4j-browser/">Neo4j Browser</a> from an <a href="https://neo4j.com/cloud/platform/aura-graph-database">AuraDB instance</a> with the following credentials: 
+    <p style='font-family:sans-serif; font-size: 16px;'>
+    uri: <b>{st.secrets['neo4j_uri']}</b>
+    <br>user: <b>{st.secrets['neo4j_client_user']}</b>
+    <br>pass: <b>{st.secrets['neo4j_client_password']}</b>
+    </p>
+    """
+    st.markdown(more_info, unsafe_allow_html=True)
 
 def main():
-    # st.header('Welcome to the Neo4j for Python Developers Workshop')
     next = next_question(questions, answers)
     if next is None:
         submit_answers(uid, answers)
@@ -149,6 +181,5 @@ def main():
     else:
         next_options = answers_for(next)
         present_question(next, next_options)
-    # st.text(f'Your random UUID is {uid} ')
 
 main()

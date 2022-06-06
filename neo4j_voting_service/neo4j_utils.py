@@ -24,10 +24,10 @@ class Neo4jConnection:
         assert self.__driver is not None, "Driver not initialized!"
         def execute(tx):
             result = tx.run(query, kwargs)
-            return result
+            return list(result)
         try:
             with self.__driver.session(database=database) as session:
-                return session.write_transaction(execute)
+                return session.read_transaction(execute)
         except Exception as e:
             print("read failed:", e)
 
@@ -35,7 +35,10 @@ class Neo4jConnection:
         assert self.__driver is not None, "Driver not initialized!"
         def execute(tx):
             result = tx.run(query, kwargs)
-            return result
+            result_data = []
+            for row in result:
+                result_data.append(row.data())
+            return result_data
         try:
             with self.__driver.session(database=database) as session:
                 return session.write_transaction(execute)
