@@ -1,8 +1,9 @@
 from operator import ge
-from neo4j_voting_service.neo4j_repo import Neo4jRepository
-from neo4j_voting_service.neo4j_utils import Neo4jConnection
+from neo4j_repo import Neo4jRepository
+from neo4j_utils import Neo4jConnection
 import streamlit as st
-from streamlit_autorefresh import st_autorefresh
+# Add & uncomment to use autorefresh
+# from streamlit_autorefresh import st_autorefresh
 from typing import List, Tuple, Dict
 import uuid
 from pyvis import network as net

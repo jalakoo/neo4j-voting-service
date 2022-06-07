@@ -26,6 +26,18 @@ CREATE CONSTRAINT unique_choice FOR (choice:Choice) REQUIRE choice.name IS UNIQU
 CREATE USER explorer IF NOT EXISTS SET PLAINTEXT PASSWORD “exploring” SET STATUS ACTIVE SET HOME DATABASE votes
 ```
 
+## Setup pipenv
+`pipenv shell`
+`pipenv install streamlit`
+`pipenv install neo4j`
+`pipenv install stvis`
+`pipenv install pyvis`
+
+## Running pipenv
+`pipenv shell`
+`pipenv sync`
+`pipenv run python src/app.py`
+
 ## Troubleshooting
 ERROR:
 `ERROR tests/test_neo4j_voting_service.py - TypeError: required field "lineno" missing from alias`
