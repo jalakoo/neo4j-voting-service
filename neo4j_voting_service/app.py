@@ -21,8 +21,8 @@ questions = [
         'options' : ["Ability to fly", 'Regnerate body parts', 'Produce electric shocks', "No Idea"]
     },
         {
-        'question' : 'What brought you to GraphConnect today?',
-        'options' : ['Interested in Learning', 'Want to share your experiences', 'To connect with other graph enthusasists', 'Was forced to']
+        'question' : 'What animal logo should neo4j use?',
+        'options' : ['Giraffe', 'Axololte', 'Octopus', "Something else"]
     },
 ]
 
