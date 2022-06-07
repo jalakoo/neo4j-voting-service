@@ -13,16 +13,16 @@ from stvis import pv_static
 # Questions list in sequential order
 questions = [
     {
-        'question' : 'Where did you first hear of an Axo-lo-tle?',
+        'question' : 'Where did you first learn of Axolotles?',
         'options' : ['North America', 'South America', 'Europe', 'Africa', 'Asia', 'Australia and Pacific', "Can't Recall"]
     },
         {
-        'question' : "What's an Axo-lo-ltle's most interesting trait?",
-        'options' : ["Can survive the vacuum of space", 'Can regnerate body parts', 'Can generate an electric shock', "No Idea"]
+        'question' : "What animal superpower would you like to have?",
+        'options' : ["Ability to fly", 'Regnerate body parts', 'Produce electric shocks', "No Idea"]
     },
         {
-        'question' : 'What brings you to GraphConnect?',
-        'options' : ['Interest in Learning', 'To connect with other graph enthusasists', 'Was forced to']
+        'question' : 'What brought you to GraphConnect today?',
+        'options' : ['Interested in Learning', 'Want to share your experiences', 'To connect with other graph enthusasists', 'Was forced to']
     },
 ]
 
@@ -184,6 +184,8 @@ def present_end():
     present_graph()
 
     more_info = f"""
+    Users are <b style='color:DarkSeaGreen'> GREEN </b>, answers are <b style='color:IndianRed'> RED </b>, and choices are <b style='color:CornflowerBlue'> BLUE </b>.
+    <br><br>
     To explore this data more, use the <a href="https://neo4j.com/developer/neo4j-desktop/">Desktop app</a> or the <a href="https://neo4j.com/developer/neo4j-browser/">Neo4j Browser</a> from an <a href="https://neo4j.com/cloud/platform/aura-graph-database">AuraDB instance</a> with the following credentials: 
     <p style='font-family:sans-serif; font-size: 16px;'>
     uri: <b>{st.secrets['neo4j_uri']}</b>
